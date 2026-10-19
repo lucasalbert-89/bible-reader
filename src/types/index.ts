@@ -12,6 +12,8 @@ export interface DayReading {
   verse: string;
   reference: string;
   reflection: string;
+  authorOrCatechism?: string;
+  sola?: string;
 }
 
 export interface ReadingPlanInfo {

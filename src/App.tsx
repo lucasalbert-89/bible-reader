@@ -8,14 +8,14 @@ import { AuthModal } from './components/AuthModal';
 import { useReadingProgress } from './hooks/useReadingProgress';
 import { getPlanDays } from './data/planGenerator';
 import { DayReading } from './types';
-import { Heart, BookOpen, Sparkles } from 'lucide-react';
+import { BookOpen, Scroll, Shield } from 'lucide-react';
 
 export function App() {
   // Theme management
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('biblia_theme');
     if (saved) return saved === 'dark';
-    return true; // Default to dark mode (matches original site)
+    return true; // Default to dark mode (Reformed Navy)
   });
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-parchment-50 dark:bg-reformedNavy-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
       
       {/* Top Navbar */}
       <Navbar
@@ -81,19 +81,21 @@ export function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8 sm:space-y-12">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-3.5 sm:px-6 py-6 sm:py-10 space-y-7 sm:space-y-10">
         
-        {/* Hero Title Section */}
-        <section className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100 dark:bg-slate-900 border border-emerald-200 dark:border-neonGreen/30 text-emerald-800 dark:text-neonGreen text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Alimente sua fé diariamente</span>
+        {/* Reformed Heritage Banner: Os Cinco Solas */}
+        <section className="text-center max-w-3xl mx-auto space-y-3 sm:space-y-4">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 rounded-full bg-reformedGold-100 dark:bg-reformedNavy-900 border border-reformedGold-300/50 dark:border-reformedGold-600/30 text-reformedGold-800 dark:text-reformedGold-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest shadow-sm">
+            <Shield className="w-3.5 h-3.5 text-reformedGold-600" />
+            <span>Sola Scriptura • Sola Gratia • Sola Fide • Solus Christus • Soli Deo Gloria</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-slate-900 dark:text-white">
-            Planos de Leitura da Bíblia
+
+          <h1 className="display-title text-2xl sm:text-5xl font-extrabold uppercase tracking-wide text-slate-900 dark:text-reformedGold-100">
+            A Aliança das Escrituras
           </h1>
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
-            Escolha o ritmo que melhor se adapta à sua rotina: conclua a Escritura sagrada em <strong>365 dias</strong>, <strong>180 dias</strong> ou <strong>90 dias</strong>, com acompanhamento de progresso e reflexões para cada dia.
+
+          <p className="text-xs sm:text-base text-slate-700 dark:text-slate-300 font-serif italic leading-relaxed max-w-2xl mx-auto">
+            "Toda a Escritura é divinamente inspirada e suficiente para a instrução na justiça." Percorra todo o conselho de Deus através dos planos sistemáticos de <strong>365 dias</strong>, <strong>180 dias</strong> ou <strong>90 dias</strong>, com meditações firmadas na graça soberana do Senhor.
           </p>
         </section>
 
@@ -129,23 +131,25 @@ export function App() {
 
       </main>
 
-      {/* Footer */}
-      <footer className="w-full border-t border-slate-200 dark:border-slate-800 py-8 text-center text-xs text-slate-500 dark:text-slate-400 bg-white/50 dark:bg-slate-950/50">
+      {/* Reformed Footer */}
+      <footer className="w-full border-t border-reformedGold-200/50 dark:border-reformedNavy-800 py-8 text-center text-xs text-slate-600 dark:text-slate-400 bg-white/60 dark:bg-reformedNavy-900/60">
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-emerald-600 dark:text-neonGreen" />
-            <span className="font-bold text-slate-700 dark:text-slate-300">
-              Bíblia Planos • 365, 180 e 90 Dias
+            <BookOpen className="w-4 h-4 text-reformedGold-600 dark:text-reformedGold-400" />
+            <span className="font-bold text-slate-800 dark:text-reformedGold-200 font-serif">
+              Post Tenebras Lux • Bíblia Planos
             </span>
           </div>
 
-          <div className="flex items-center gap-1">
-            <span>Desenvolvido para edificação espiritual</span>
-            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" />
+          <div className="flex items-center gap-1.5 font-serif italic">
+            <Scroll className="w-3.5 h-3.5 text-reformedGold-500 inline" />
+            <span>"O fim principal do homem é glorificar a Deus e gozá-lo para sempre." (Breve de Westminster)</span>
           </div>
 
           <div>
-            <span>Pronto para GitHub, On Render & Supabase</span>
+            <span className="display-title font-bold text-reformedGold-700 dark:text-reformedGold-400">
+              Soli Deo Gloria
+            </span>
           </div>
         </div>
       </footer>

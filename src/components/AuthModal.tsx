@@ -69,37 +69,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div 
-        className="bg-white dark:bg-slate-900 rounded-[28px] sm:rounded-[32px] w-full max-w-md shadow-2xl transition-all border border-slate-200 dark:border-slate-800 p-5 sm:p-8 relative overflow-hidden animate-in zoom-in-95 duration-200"
+        className="bg-parchment-50 dark:bg-reformedNavy-900 rounded-[28px] sm:rounded-[32px] w-full max-w-md shadow-2xl transition-all border border-reformedGold-300/60 dark:border-reformedGold-600/30 p-5 sm:p-8 relative overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
           aria-label="Fechar"
-          className="absolute top-4 right-4 sm:top-6 sm:right-6 w-9 h-9 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center active:scale-95"
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 w-9 h-9 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-reformedNavy-800 transition-colors flex items-center justify-center active:scale-95"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Modal Header */}
         <div className="text-center mb-5 sm:mb-6">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-100 dark:bg-slate-800 text-emerald-600 dark:text-neonGreen flex items-center justify-center mx-auto mb-2.5 sm:mb-3 shadow-sm">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-reformedGold-100 dark:bg-reformedNavy-800 text-reformedGold-600 dark:text-reformedGold-400 flex items-center justify-center mx-auto mb-2.5 sm:mb-3 shadow-sm border border-reformedGold-300/40">
             <Lock className="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
-          <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+          <h3 className="display-title text-xl sm:text-2xl font-bold text-slate-900 dark:text-reformedGold-100 uppercase tracking-wide">
             {mode === 'signin' ? 'Acessar Conta' : 'Criar Nova Conta'}
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-serif italic">
             {mode === 'signin'
-              ? 'Entre para sincronizar seu progresso de leitura na nuvem'
-              : 'Cadastre-se para nunca perder seus dias concluídos'}
+              ? 'Entre para sincronizar sua caminhada nas Escrituras'
+              : 'Cadastre-se para preservar suas meditações na nuvem'}
           </p>
         </div>
 
-        {/* Warning if Supabase is not yet connected with env */}
+        {/* Warning if Supabase is not ready */}
         {!isSupabaseReady && (
           <div className="mb-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs leading-relaxed flex items-start gap-2.5">
             <KeyRound className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
@@ -120,7 +120,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
         {/* Success message */}
         {successMsg && (
-          <div className="mb-3.5 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-neonGreen text-xs flex items-center gap-2">
+          <div className="mb-3.5 p-3 rounded-xl bg-reformedGreen-50 dark:bg-reformedNavy-800 border border-reformedGreen-200 dark:border-reformedGreen-700 text-reformedGreen-800 dark:text-emerald-300 text-xs flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successMsg}</span>
           </div>
@@ -129,7 +129,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <label className="block text-[11px] font-bold uppercase text-slate-700 dark:text-slate-300 tracking-wider mb-1">
+            <label className="block text-[11px] font-bold uppercase text-slate-700 dark:text-slate-300 tracking-wider mb-1 font-sans">
               E-mail
             </label>
             <div className="relative">
@@ -140,13 +140,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="seu.email@exemplo.com"
                 required
-                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 text-base focus:outline-none focus:border-emerald-500 dark:focus:border-neonGreen transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-white dark:bg-reformedNavy-950 border border-slate-200 dark:border-reformedNavy-700 text-slate-900 dark:text-white placeholder-slate-400 text-base focus:outline-none focus:border-reformedGold-500 transition-all"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase text-slate-700 dark:text-slate-300 tracking-wider mb-1">
+            <label className="block text-[11px] font-bold uppercase text-slate-700 dark:text-slate-300 tracking-wider mb-1 font-sans">
               Senha
             </label>
             <div className="relative">
@@ -158,7 +158,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 placeholder="••••••••"
                 required
                 minLength={6}
-                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 text-base focus:outline-none focus:border-emerald-500 dark:focus:border-neonGreen transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-white dark:bg-reformedNavy-950 border border-slate-200 dark:border-reformedNavy-700 text-slate-900 dark:text-white placeholder-slate-400 text-base focus:outline-none focus:border-reformedGold-500 transition-all"
               />
             </div>
           </div>
@@ -166,7 +166,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider bg-emerald-600 hover:bg-emerald-700 dark:bg-neonGreen dark:hover:bg-emerald-400 text-white dark:text-black transition-all shadow-md dark:shadow-neon-green disabled:opacity-50 active:scale-98 flex items-center justify-center gap-2 mt-2"
+            className="w-full py-3.5 rounded-2xl font-bold text-xs uppercase tracking-wider bg-reformedGold-600 hover:bg-reformedGold-700 text-white transition-all shadow-md shadow-reformedGold-600/30 disabled:opacity-50 active:scale-98 flex items-center justify-center gap-2 mt-2 font-sans"
           >
             {loading ? (
               <span>Processando...</span>
@@ -185,7 +185,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         </form>
 
         {/* Toggle Mode */}
-        <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+        <div className="mt-5 pt-4 border-t border-slate-100 dark:border-reformedNavy-800 text-center font-sans">
           {mode === 'signin' ? (
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Não tem conta?{' '}
@@ -195,7 +195,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   setMode('signup');
                   setErrorMsg(null);
                 }}
-                className="font-bold text-emerald-600 dark:text-neonGreen hover:underline ml-1"
+                className="font-bold text-reformedGold-600 dark:text-reformedGold-400 hover:underline ml-1"
               >
                 Cadastre-se grátis
               </button>
@@ -209,7 +209,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   setMode('signin');
                   setErrorMsg(null);
                 }}
-                className="font-bold text-emerald-600 dark:text-neonGreen hover:underline ml-1"
+                className="font-bold text-reformedGold-600 dark:text-reformedGold-400 hover:underline ml-1"
               >
                 Faça login
               </button>

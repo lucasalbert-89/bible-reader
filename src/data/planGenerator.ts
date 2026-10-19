@@ -41,7 +41,7 @@ function groupIntoSegments(chapters: ChapterPointer[], defaultTitle = 'Leitura')
     let category: 'ot' | 'sapiential' | 'nt' | 'geral' = 'geral';
 
     if (g.category === 'poesia') {
-      title = 'Sapienciais / Salmos';
+      title = 'Poéticos e Sapienciais';
       category = 'sapiential';
     } else if (g.testament === 'ot') {
       title = 'Antigo Testamento';
@@ -91,7 +91,7 @@ export function generatePlan365(): DayReading[] {
     const segments: ReadingSegment[] = [];
 
     const otSegs = groupIntoSegments(otPartition[d], 'Antigo Testamento');
-    const poetrySegs = groupIntoSegments(poetryPartition[d], 'Salmos / Sapienciais');
+    const poetrySegs = groupIntoSegments(poetryPartition[d], 'Poéticos e Sapienciais');
     const ntSegs = groupIntoSegments(ntPartition[d], 'Novo Testamento');
 
     segments.push(...otSegs, ...poetrySegs, ...ntSegs);
@@ -103,7 +103,9 @@ export function generatePlan365(): DayReading[] {
       segments,
       verse: message.verse,
       reference: message.reference,
-      reflection: message.reflection
+      reflection: message.reflection,
+      authorOrCatechism: message.authorOrCatechism,
+      sola: message.sola,
     });
   }
 
@@ -138,7 +140,9 @@ export function generatePlan180(): DayReading[] {
       segments: [...otSegs, ...ntSegs],
       verse: message.verse,
       reference: message.reference,
-      reflection: message.reflection
+      reflection: message.reflection,
+      authorOrCatechism: message.authorOrCatechism,
+      sola: message.sola,
     });
   }
 
@@ -152,7 +156,7 @@ export function generatePlan90(): DayReading[] {
 
   for (let d = 0; d < 90; d++) {
     const dayNumber = d + 1;
-    const segs = groupIntoSegments(partition[d], 'Leitura Diária');
+    const segs = groupIntoSegments(partition[d], 'Leitura das Escrituras');
     const message = getInspirationalMessage(dayNumber);
 
     days.push({
@@ -160,7 +164,9 @@ export function generatePlan90(): DayReading[] {
       segments: segs,
       verse: message.verse,
       reference: message.reference,
-      reflection: message.reflection
+      reflection: message.reflection,
+      authorOrCatechism: message.authorOrCatechism,
+      sola: message.sola,
     });
   }
 

@@ -12,6 +12,10 @@
   font-family: 'Crimson Pro', Georgia, serif;
 }
 
+.display-title {
+  font-family: 'Cinzel', 'Crimson Pro', Georgia, serif;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -20,29 +24,27 @@
   scrollbar-width: none;
 }
 
-/* Custom glow and accents */
-.dark .neon-border {
-  box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+/* Sacred Reformed Glow */
+.dark .sacred-border {
+  box-shadow: 0 0 15px rgba(217, 119, 6, 0.2);
 }
 
-.dark .neon-text-green {
-  text-shadow: 0 0 8px rgba(57, 255, 20, 0.4);
+.dark .gold-text {
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
 }
 
-.dark .neon-text-orange {
-  text-shadow: 0 0 8px rgba(255, 95, 31, 0.4);
-}
-
-/* Subtle gentle shimmer for completion (reverent, non-confetti) */
-@keyframes subtle-glow {
+/* Subtle gentle candle-like breathing shimmer */
+@keyframes candle-flicker {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+    opacity: 0.96;
+    box-shadow: 0 0 20px rgba(217, 119, 6, 0.2);
   }
   50% {
-    box-shadow: 0 0 25px rgba(57, 255, 20, 0.5);
+    opacity: 1;
+    box-shadow: 0 0 30px rgba(217, 119, 6, 0.35);
   }
 }
 
-.subtle-pulse {
-  animation: subtle-glow 3s infinite ease-in-out;
+.candle-glow {
+  animation: candle-flicker 5s infinite ease-in-out;
 }
