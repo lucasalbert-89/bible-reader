@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+.bible-text {
+  font-family: 'Crimson Pro', Georgia, serif;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom glow and accents */
+.dark .neon-border {
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+}
+
+.dark .neon-text-green {
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.4);
+}
+
+.dark .neon-text-orange {
+  text-shadow: 0 0 8px rgba(255, 95, 31, 0.4);
+}
+
+/* Subtle gentle shimmer for completion (reverent, non-confetti) */
+@keyframes subtle-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(57, 255, 20, 0.5);
+  }
+}
+
+.subtle-pulse {
+  animation: subtle-glow 3s infinite ease-in-out;
+}
