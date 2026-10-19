@@ -72,12 +72,12 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
             <span className="text-xs font-bold text-slate-900 dark:text-reformedGold-200">
               {activePlanInfo.title}
             </span>
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-reformedGold-100 dark:bg-reformedGold-900/30 text-reformedGold-800 dark:text-reformedGold-300 border border-reformedGold-300/50">
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-reformedGold-100 dark:bg-reformedGold-950/80 text-reformedGold-900 dark:text-reformedGold-200 border border-reformedGold-300 dark:border-reformedGold-500/60">
               {activePlanInfo.badge}
             </span>
           </div>
           <p className="text-[11px] text-slate-600 dark:text-slate-400">
-            Ritmo: <strong>{activePlanInfo.chaptersPerDay}</strong>
+            Porção diária: <strong className="text-slate-900 dark:text-reformedGold-200">{activePlanInfo.chaptersPerDay}</strong>
           </p>
         </div>
       </div>
@@ -102,10 +102,10 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
                     {getIcon(plan.id, "w-5 h-5")}
                   </div>
                   <span
-                    className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                    className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${
                       isSelected
-                        ? 'bg-reformedGold-100 text-reformedGold-800 dark:bg-reformedGold-900/40 dark:text-reformedGold-300 border border-reformedGold-300 dark:border-reformedGold-600/50'
-                        : 'bg-slate-100 dark:bg-reformedNavy-800 text-slate-600 dark:text-slate-400'
+                        ? 'bg-reformedGold-100 text-reformedGold-900 dark:bg-reformedGold-950/90 dark:text-reformedGold-200 border-reformedGold-300 dark:border-reformedGold-500/70 shadow-sm'
+                        : 'bg-slate-100 text-slate-700 dark:bg-reformedNavy-800 dark:text-slate-300 border-slate-200 dark:border-reformedNavy-700'
                     }`}
                   >
                     {plan.badge}
@@ -115,7 +115,7 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
                 <h3 className="display-title text-base font-bold tracking-wide text-slate-900 dark:text-reformedGold-100 mb-1.5">
                   {plan.title}
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-3 font-serif">
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed mb-3 font-serif">
                   {plan.description}
                 </p>
               </div>
@@ -124,7 +124,7 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
                 <span className="font-semibold text-slate-500 dark:text-slate-400 font-serif">
                   Porção diária:
                 </span>
-                <span className="font-bold text-slate-800 dark:text-reformedGold-300">
+                <span className="font-bold text-slate-900 dark:text-reformedGold-200">
                   {plan.chaptersPerDay}
                 </span>
               </div>
