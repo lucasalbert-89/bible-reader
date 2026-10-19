@@ -6,6 +6,7 @@ interface NavbarProps {
   darkMode: boolean;
   onToggleTheme: () => void;
   onOpenAuth: () => void;
+  onOpenBibleReader?: () => void;
   isSyncing: boolean;
   syncedWithCloud: boolean;
 }
@@ -14,6 +15,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   darkMode,
   onToggleTheme,
   onOpenAuth,
+  onOpenBibleReader,
   isSyncing,
   syncedWithCloud,
 }) => {
@@ -62,6 +64,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               <CloudOff className="w-3 h-3 text-amber-600" />
               <span className="hidden sm:inline">Modo Visitante (Local)</span>
             </div>
+          )}
+
+          {/* Bible Reader Quick Access Button */}
+          {onOpenBibleReader && (
+            <button
+              onClick={onOpenBibleReader}
+              aria-label="Abrir Bíblia"
+              title="Abrir Leitor da Bíblia (NVI / NAA / ACF)"
+              className="h-10 px-3 rounded-xl border border-reformedGold-300/80 dark:border-reformedGold-600/40 bg-gradient-to-r from-reformedGold-50 to-amber-50 dark:from-reformedNavy-900 dark:to-reformedNavy-800 text-reformedGold-800 dark:text-reformedGold-200 hover:border-reformedGold-500 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 text-xs font-bold"
+            >
+              <BookOpen className="w-4 h-4 text-reformedGold-600 dark:text-reformedGold-400" />
+              <span className="hidden sm:inline">Bíblia</span>
+            </button>
           )}
 
           {/* Theme Toggle Button */}

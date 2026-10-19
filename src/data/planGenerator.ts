@@ -58,7 +58,9 @@ function groupIntoSegments(chapters: ChapterPointer[], defaultTitle = 'Leitura')
     return {
       title,
       chapters: rangeStr,
-      category
+      category,
+      bookName: g.book,
+      chapterNumbers: g.chapters
     };
   });
 }

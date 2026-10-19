@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DayReading } from '../types';
-import { X, Share2, Check, CheckCircle2, Bookmark, BookOpen, Quote, ShieldCheck } from 'lucide-react';
+import { X, Share2, Check, CheckCircle2, Bookmark, BookOpen, Quote, ShieldCheck, ChevronRight } from 'lucide-react';
 
 interface DayDetailModalProps {
   reading: DayReading | null;
@@ -8,6 +8,7 @@ interface DayDetailModalProps {
   isCompleted: boolean;
   onToggleComplete: (day: number) => void;
   onClose: () => void;
+  onOpenReader?: (bookName?: string, chapter?: number) => void;
 }
 
 export const DayDetailModal: React.FC<DayDetailModalProps> = ({
@@ -16,6 +17,7 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
   isCompleted,
   onToggleComplete,
   onClose,
+  onOpenReader,
 }) => {
   const [copyFeedback, setCopyFeedback] = useState(false);
 
@@ -101,10 +103,29 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
         <div className="p-4 sm:p-6 space-y-5 overflow-y-auto overscroll-contain flex-1">
           
           {/* Reading Segments */}
-          <div className="space-y-2.5">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block font-sans">
-              Leitura das Sagradas Escrituras:
-            </span>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block font-sans">
+                Leitura das Sagradas Escrituras:
+              </span>
+              <span className="text-[10px] font-bold text-reformedGold-600 dark:text-reformedGold-400">
+                NVI • NAA • ACF
+              </span>
+            </div>
+
+            {/* Hero Button: Open Reader for the Day */}
+            {onOpenReader && (
+              <button
+                onClick={() => {
+                  const first = reading.segments[0];
+                  onOpenReader(first?.bookName || 'Gênesis', first?.chapterNumbers?.[0] || 1);
+                }}
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-reformedGold-600 to-reformedGold-700 hover:from-reformedGold-500 hover:to-reformedGold-600 text-white font-bold text-xs sm:text-sm shadow-md shadow-reformedGold-600/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Abrir Leitor da Bíblia (Ler no Site)</span>
+              </button>
+            )}
 
             <div className="grid grid-cols-1 gap-2">
               {reading.segments.map((seg, idx) => {
@@ -120,10 +141,15 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
                 return (
                   <div
                     key={idx}
-                    className={`p-3.5 sm:p-4 rounded-2xl border flex items-center justify-between hover:border-reformedGold-400 transition-all ${badgeClass}`}
+                    onClick={() => {
+                      if (onOpenReader) {
+                        onOpenReader(seg.bookName || 'Gênesis', seg.chapterNumbers?.[0] || 1);
+                      }
+                    }}
+                    className={`p-3.5 sm:p-4 rounded-2xl border flex items-center justify-between hover:border-reformedGold-400 transition-all cursor-pointer group active:scale-[0.99] ${badgeClass}`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-parchment-100 dark:bg-reformedNavy-950 flex items-center justify-center text-reformedGold-600 dark:text-reformedGold-400 shadow-sm shrink-0 border border-reformedGold-200/50 dark:border-reformedNavy-700">
+                      <div className="w-8 h-8 rounded-xl bg-parchment-100 dark:bg-reformedNavy-950 flex items-center justify-center text-reformedGold-600 dark:text-reformedGold-400 shadow-sm shrink-0 border border-reformedGold-200/50 dark:border-reformedNavy-700 group-hover:scale-105 transition-transform">
                         <BookOpen className="w-4 h-4" />
                       </div>
                       <div>
@@ -135,6 +161,13 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
                         </p>
                       </div>
                     </div>
+
+                    {onOpenReader && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white dark:bg-reformedNavy-900 border border-reformedGold-300/80 dark:border-reformedGold-700/60 text-reformedGold-700 dark:text-reformedGold-300 text-[11px] font-bold group-hover:bg-reformedGold-600 group-hover:text-white transition-all shadow-sm">
+                        <span>Ler</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </span>
+                    )}
                   </div>
                 );
               })}

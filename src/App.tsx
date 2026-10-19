@@ -5,6 +5,7 @@ import { ProgressDashboard } from './components/ProgressDashboard';
 import { MonthNavigation } from './components/MonthNavigation';
 import { DayDetailModal } from './components/DayDetailModal';
 import { AuthModal } from './components/AuthModal';
+import { BibleReaderModal, BibleTargetPointer } from './components/BibleReaderModal';
 import { useReadingProgress } from './hooks/useReadingProgress';
 import { getPlanDays } from './data/planGenerator';
 import { DayReading } from './types';
@@ -50,6 +51,15 @@ export function App() {
   // Active day reading modal
   const [selectedDayReading, setSelectedDayReading] = useState<DayReading | null>(null);
 
+  // Bible Reader modal state
+  const [isBibleReaderOpen, setIsBibleReaderOpen] = useState(false);
+  const [readerInitialLocation, setReaderInitialLocation] = useState<{ book: string; chapter: number }>({
+    book: 'Gênesis',
+    chapter: 1,
+  });
+  const [readerDayPortions, setReaderDayPortions] = useState<BibleTargetPointer[]>([]);
+  const [readerDayNumber, setReaderDayNumber] = useState<number | undefined>(undefined);
+
   // Auth modal
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
@@ -68,6 +78,34 @@ export function App() {
     }
   };
 
+  // Open Bible Reader with specific book and chapter (and optional day portions)
+  const handleOpenReader = (bookName = 'Gênesis', chapter = 1, dayNumber?: number) => {
+    setReaderInitialLocation({ book: bookName, chapter });
+    setReaderDayNumber(dayNumber);
+
+    if (dayNumber !== undefined) {
+      const allDays = getPlanDays(selectedPlan);
+      const dayData = allDays.find(d => d.day === dayNumber);
+      if (dayData) {
+        const portions: BibleTargetPointer[] = [];
+        for (const seg of dayData.segments) {
+          if (seg.bookName && seg.chapterNumbers) {
+            for (const ch of seg.chapterNumbers) {
+              portions.push({ bookName: seg.bookName, chapter: ch });
+            }
+          }
+        }
+        setReaderDayPortions(portions);
+      } else {
+        setReaderDayPortions([]);
+      }
+    } else {
+      setReaderDayPortions([]);
+    }
+
+    setIsBibleReaderOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-parchment-50 dark:bg-reformedNavy-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
       
@@ -76,6 +114,7 @@ export function App() {
         darkMode={darkMode}
         onToggleTheme={toggleTheme}
         onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenBibleReader={() => handleOpenReader('Gênesis', 1)}
         isSyncing={isSyncing}
         syncedWithCloud={syncedWithCloud}
       />
@@ -160,7 +199,20 @@ export function App() {
         planTitle={currentPlanInfo.title}
         isCompleted={selectedDayReading ? isDayCompleted(selectedDayReading.day) : false}
         onToggleComplete={(day) => toggleDay(day)}
+        onOpenReader={(book, chapter) => handleOpenReader(book, chapter, selectedDayReading?.day)}
         onClose={() => setSelectedDayReading(null)}
+      />
+
+      {/* Bible Reader Modal (NVI / NAA / ACF) */}
+      <BibleReaderModal
+        isOpen={isBibleReaderOpen}
+        onClose={() => setIsBibleReaderOpen(false)}
+        initialBook={readerInitialLocation.book}
+        initialChapter={readerInitialLocation.chapter}
+        dayPortions={readerDayPortions}
+        dayNumber={readerDayNumber}
+        isDayCompleted={readerDayNumber !== undefined ? isDayCompleted(readerDayNumber) : false}
+        onToggleDayComplete={(day) => toggleDay(day)}
       />
 
       {/* Auth Modal */}

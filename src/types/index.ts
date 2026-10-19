@@ -1,9 +1,21 @@
 export type PlanId = 'plano-365' | 'plano-180' | 'plano-90';
 
+export type BibleVersionId = 'nvi' | 'naa' | 'acf';
+
+export interface BibleVersionInfo {
+  id: BibleVersionId;
+  name: string;
+  fullName: string;
+  badge: string;
+  description: string;
+}
+
 export interface ReadingSegment {
   title: string; // e.g. "Antigo Testamento", "Novo Testamento", "Salmos / Provérbios", "Leitura Diária"
   chapters: string; // e.g. "Gênesis 1 a 3", "Mateus 1"
   category?: 'ot' | 'sapiential' | 'nt' | 'geral';
+  bookName?: string;
+  chapterNumbers?: number[];
 }
 
 export interface DayReading {
