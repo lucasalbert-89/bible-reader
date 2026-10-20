@@ -173,11 +173,11 @@ export const BibleReaderModal: React.FC<BibleReaderModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-backdrop-enter"
       onClick={onClose}
     >
       <div 
-        className="bg-parchment-50 dark:bg-reformedNavy-900 w-full sm:max-w-4xl h-full sm:h-[94vh] sm:rounded-3xl shadow-2xl transition-all border border-reformedGold-300/60 dark:border-reformedGold-600/30 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        className="bg-parchment-50 dark:bg-reformedNavy-900 w-full sm:max-w-4xl h-full sm:h-[94vh] sm:rounded-3xl shadow-2xl transition-all border border-reformedGold-300/60 dark:border-reformedGold-600/30 flex flex-col overflow-hidden animate-modal-enter"
         onClick={(e) => e.stopPropagation()}
       >
         

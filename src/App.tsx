@@ -196,6 +196,7 @@ export function App() {
       {/* Day Detail Modal */}
       <DayDetailModal
         reading={selectedDayReading}
+        planId={selectedPlan}
         planTitle={currentPlanInfo.title}
         isCompleted={selectedDayReading ? isDayCompleted(selectedDayReading.day) : false}
         onToggleComplete={(day) => toggleDay(day)}
