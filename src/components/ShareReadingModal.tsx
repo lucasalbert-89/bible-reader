@@ -89,6 +89,33 @@ export const ShareReadingModal: React.FC<ShareReadingModalProps> = ({
     }
   };
 
+  // Helper function to split text into wrapped lines for Canvas
+  const getWrappedLines = (
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    maxWidth: number
+  ): string[] => {
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const width = ctx.measureText(testLine).width;
+      if (width > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+    return lines;
+  };
+
   // Generate and download an image for Stories / Status
   const handleDownloadImage = () => {
     setIsGeneratingImage(true);
@@ -96,9 +123,12 @@ export const ShareReadingModal: React.FC<ShareReadingModalProps> = ({
     try {
       const canvas = document.createElement('canvas');
       canvas.width = 1080;
-      canvas.height = 1440; // Optimal 3:4 aspect ratio for Instagram / WhatsApp Status
+      canvas.height = 1440; // Optimal 3:4 aspect ratio
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
+
+      // Reset letterSpacing to 0px explicitly
+      ctx.letterSpacing = '0px';
 
       // 1. Background Gradient (Deep Reformed Navy)
       const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -147,159 +177,198 @@ export const ShareReadingModal: React.FC<ShareReadingModalProps> = ({
       drawCorner(canvas.width - 65, canvas.height - 65, Math.PI);
       drawCorner(65, canvas.height - 65, -Math.PI / 2);
 
-      // Helper for wrapped text
-      const wrapText = (
-        text: string, 
-        x: number, 
-        y: number, 
-        maxWidth: number, 
-        lineHeight: number, 
-        align: CanvasTextAlign = 'center'
-      ): number => {
-        ctx.textAlign = align;
-        const words = text.split(' ');
-        let line = '';
-        let currentY = y;
-
-        for (let n = 0; n < words.length; n++) {
-          const testLine = line + words[n] + ' ';
-          const metrics = ctx.measureText(testLine);
-          if (metrics.width > maxWidth && n > 0) {
-            ctx.fillText(line.trim(), x, currentY);
-            line = words[n] + ' ';
-            currentY += lineHeight;
-          } else {
-            line = testLine;
-          }
-        }
-        ctx.fillText(line.trim(), x, currentY);
-        return currentY + lineHeight;
-      };
-
       // 4. Header: Crest & Solas
       ctx.fillStyle = '#E5BD55';
       ctx.font = 'bold 20px "Inter", sans-serif';
       ctx.textAlign = 'center';
-      ctx.letterSpacing = '6px';
-      ctx.fillText('SOLA SCRIPTURA • SOLI DEO GLORIA', canvas.width / 2, 130);
+      ctx.letterSpacing = '5px';
+      ctx.fillText('SOLA SCRIPTURA • SOLI DEO GLORIA', canvas.width / 2, 125);
 
       // Subtitle
+      ctx.letterSpacing = '1px';
       ctx.fillStyle = '#94A3B8';
-      ctx.font = 'italic 22px "Georgia", serif';
-      ctx.letterSpacing = '2px';
-      ctx.fillText('A Aliança das Escrituras', canvas.width / 2, 175);
+      ctx.font = 'italic 21px "Georgia", serif';
+      ctx.fillText('A Aliança das Escrituras', canvas.width / 2, 168);
 
       // 5. Celebration Badge Box
-      const badgeY = 240;
+      const badgeY = 225;
+      ctx.letterSpacing = '0px';
       ctx.fillStyle = 'rgba(217, 119, 6, 0.18)';
       ctx.beginPath();
-      ctx.roundRect((canvas.width - 560) / 2, badgeY, 560, 60, 30);
+      ctx.roundRect((canvas.width - 540) / 2, badgeY, 540, 56, 28);
       ctx.fill();
       ctx.strokeStyle = '#D97706';
       ctx.lineWidth = 2;
       ctx.stroke();
 
       ctx.fillStyle = '#FDF2DD';
-      ctx.font = 'bold 22px "Inter", sans-serif';
-      ctx.letterSpacing = '3px';
-      ctx.fillText('✦ LEITURA DIÁRIA CONCLUÍDA ✦', canvas.width / 2, badgeY + 38);
+      ctx.font = 'bold 21px "Inter", sans-serif';
+      ctx.letterSpacing = '2.5px';
+      ctx.fillText('✦ LEITURA DIÁRIA CONCLUÍDA ✦', canvas.width / 2, badgeY + 36);
 
       // 6. Date Title
+      ctx.letterSpacing = '0px';
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 44px "Georgia", serif';
-      ctx.letterSpacing = '1px';
-      ctx.fillText(dayInfo.formattedDate.toUpperCase(), canvas.width / 2, 370);
+      ctx.font = 'bold 42px "Georgia", serif';
+      ctx.fillText(dayInfo.formattedDate.toUpperCase(), canvas.width / 2, 350);
 
       // Plan Subtitle
       ctx.fillStyle = '#E5BD55';
-      ctx.font = 'bold 24px "Inter", sans-serif';
+      ctx.font = 'bold 22px "Inter", sans-serif';
       ctx.letterSpacing = '2px';
-      ctx.fillText(`DIA ${dayInfo.globalDay} DE ${dayInfo.totalDays} • ${planTitle.toUpperCase()}`, canvas.width / 2, 415);
+      ctx.fillText(`DIA ${dayInfo.globalDay} DE ${dayInfo.totalDays} • ${planTitle.toUpperCase()}`, canvas.width / 2, 395);
 
       // Decorative divider
       ctx.strokeStyle = 'rgba(229, 189, 85, 0.4)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(canvas.width / 2 - 120, 455);
-      ctx.lineTo(canvas.width / 2 + 120, 455);
+      ctx.moveTo(canvas.width / 2 - 100, 430);
+      ctx.lineTo(canvas.width / 2 + 100, 430);
       ctx.stroke();
 
-      // 7. Segments Box
-      const segBoxY = 490;
+      // 7. Segments Box (Dynamic Height to avoid empty space)
+      ctx.letterSpacing = '0px';
+      const segBoxY = 460;
+      const visibleSegments = reading.segments.slice(0, 3);
+      const segItemHeight = 40;
+      const segBoxHeight = 55 + (visibleSegments.length * segItemHeight) + 15;
+
       ctx.fillStyle = 'rgba(13, 21, 39, 0.75)';
       ctx.beginPath();
-      ctx.roundRect(100, segBoxY, canvas.width - 200, 200, 24);
+      ctx.roundRect(100, segBoxY, canvas.width - 200, segBoxHeight, 20);
       ctx.fill();
       ctx.strokeStyle = 'rgba(229, 189, 85, 0.3)';
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
       ctx.fillStyle = '#E5BD55';
-      ctx.font = 'bold 18px "Inter", sans-serif';
+      ctx.font = 'bold 17px "Inter", sans-serif';
       ctx.textAlign = 'left';
-      ctx.letterSpacing = '3px';
-      ctx.fillText('SAGRADAS ESCRITURAS LIDAS HOJE:', 140, segBoxY + 45);
+      ctx.letterSpacing = '2.5px';
+      ctx.fillText('SAGRADAS ESCRITURAS LIDAS HOJE:', 140, segBoxY + 38);
 
-      let segY = segBoxY + 85;
-      reading.segments.slice(0, 3).forEach((seg) => {
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 24px "Georgia", serif';
-        ctx.fillText(`• ${seg.title}:`, 140, segY);
+      // Draw each segment item with guaranteed spacing between title and chapters
+      ctx.letterSpacing = '0px';
+      let segY = segBoxY + 76;
+      visibleSegments.forEach((seg) => {
+        const titleText = `• ${seg.title}:`;
         
-        ctx.fillStyle = '#E2E8F0';
-        ctx.font = '24px "Georgia", serif';
-        ctx.fillText(`${seg.chapters}`, 160 + ctx.measureText(`• ${seg.title}: `).width, segY);
-        segY += 40;
+        // 1. Measure title width in bold Georgia
+        ctx.font = 'bold 22px "Georgia", serif';
+        const titleWidth = ctx.measureText(titleText).width;
+
+        // 2. Draw title in gold
+        ctx.fillStyle = '#E5BD55';
+        ctx.fillText(titleText, 140, segY);
+
+        // 3. Draw chapters in clean white with comfortable 14px gap
+        ctx.font = '22px "Georgia", serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(seg.chapters, 140 + titleWidth + 14, segY);
+
+        segY += segItemHeight;
       });
 
-      // 8. Featured Verse Box (Gold Accent)
-      const verseBoxY = 730;
-      const verseBoxHeight = 440;
-      ctx.fillStyle = 'rgba(7, 11, 20, 0.85)';
+      // 8. Dynamic Verse & Reflection Box (Auto-sized to fit text 100% inside)
+      const verseBoxY = segBoxY + segBoxHeight + 24;
+
+      // Pre-calculate wrapped lines
+      ctx.font = 'italic 28px "Georgia", serif';
+      const verseLines = getWrappedLines(ctx, `"${reading.verse}"`, canvas.width - 320);
+      const verseLineHeight = 42;
+
+      let catechismLines: string[] = [];
+      const catechismLineHeight = 28;
+      if (reading.authorOrCatechism) {
+        ctx.font = 'italic 19px "Georgia", serif';
+        catechismLines = getWrappedLines(ctx, `📜 ${reading.authorOrCatechism}`, canvas.width - 320);
+      }
+
+      // Calculate exact required box height
+      const padTop = 28;
+      const quoteHeight = 26;
+      const verseTotalHeight = verseLines.length * verseLineHeight;
+      const refGap = 20;
+      const refHeight = 28;
+      const catechismGap = catechismLines.length > 0 ? 26 : 0;
+      const catechismDividerHeight = catechismLines.length > 0 ? 12 : 0;
+      const catechismTotalHeight = catechismLines.length * catechismLineHeight;
+      const padBottom = 34;
+
+      const verseBoxHeight = padTop + quoteHeight + verseTotalHeight + refGap + refHeight + catechismGap + catechismDividerHeight + catechismTotalHeight + padBottom;
+
+      // Draw Verse Card Background
+      ctx.fillStyle = 'rgba(7, 11, 20, 0.88)';
       ctx.beginPath();
-      ctx.roundRect(100, verseBoxY, canvas.width - 200, verseBoxHeight, 24);
+      ctx.roundRect(100, verseBoxY, canvas.width - 200, verseBoxHeight, 22);
       ctx.fill();
 
-      // Golden vertical left accent
+      ctx.strokeStyle = 'rgba(229, 189, 85, 0.35)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Golden vertical left accent bar
       ctx.fillStyle = '#D97706';
-      ctx.fillRect(100, verseBoxY + 24, 8, verseBoxHeight - 48);
+      ctx.fillRect(100, verseBoxY + 20, 8, verseBoxHeight - 40);
 
-      // Quote icon
-      ctx.fillStyle = 'rgba(229, 189, 85, 0.25)';
-      ctx.font = '80px "Georgia", serif';
+      // Quote icon mark
+      let cursorY = verseBoxY + padTop + quoteHeight;
+      ctx.fillStyle = 'rgba(229, 189, 85, 0.3)';
+      ctx.font = '65px "Georgia", serif';
       ctx.textAlign = 'left';
-      ctx.fillText('“', 140, verseBoxY + 90);
+      ctx.fillText('“', 140, cursorY);
 
-      // Verse text
+      // Draw Verse Lines (centered, fully spaced)
+      cursorY += 12;
       ctx.fillStyle = '#FDF9EF';
-      ctx.font = 'italic 32px "Georgia", serif';
-      const lastVerseY = wrapText(`"${reading.verse}"`, canvas.width / 2, verseBoxY + 130, canvas.width - 320, 48, 'center');
+      ctx.font = 'italic 28px "Georgia", serif';
+      ctx.textAlign = 'center';
+      for (const line of verseLines) {
+        ctx.fillText(line, canvas.width / 2, cursorY);
+        cursorY += verseLineHeight;
+      }
 
-      // Reference
+      // Draw Reference
+      cursorY += refGap;
       ctx.fillStyle = '#E5BD55';
-      ctx.font = 'bold 24px "Inter", sans-serif';
+      ctx.font = 'bold 23px "Inter", sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText(`— ${reading.reference}`, canvas.width - 160, Math.min(lastVerseY + 40, verseBoxY + verseBoxHeight - 80));
+      ctx.letterSpacing = '1px';
+      ctx.fillText(`— ${reading.reference}`, canvas.width - 150, cursorY);
 
-      // Reformer snippet if any
-      if (reading.authorOrCatechism) {
+      // Draw Catechism / Reformer Quote (safely inside the card)
+      if (catechismLines.length > 0) {
+        cursorY += catechismGap;
+
+        // Subtle divider inside the box
+        ctx.strokeStyle = 'rgba(229, 189, 85, 0.25)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2 - 120, cursorY - 14);
+        ctx.lineTo(canvas.width / 2 + 120, cursorY - 14);
+        ctx.stroke();
+
         ctx.fillStyle = '#94A3B8';
         ctx.font = 'italic 19px "Georgia", serif';
         ctx.textAlign = 'center';
-        wrapText(`📜 ${reading.authorOrCatechism}`, canvas.width / 2, verseBoxY + verseBoxHeight - 35, canvas.width - 320, 28, 'center');
+        ctx.letterSpacing = '0px';
+        for (const line of catechismLines) {
+          ctx.fillText(line, canvas.width / 2, cursorY);
+          cursorY += catechismLineHeight;
+        }
       }
 
-      // 9. Footer
+      // 9. Footer (Solemn Reformed Seal)
       ctx.fillStyle = '#E5BD55';
       ctx.font = 'bold 20px "Inter", sans-serif';
       ctx.textAlign = 'center';
       ctx.letterSpacing = '5px';
-      ctx.fillText('POST TENEBRAS LUX • SOLI DEO GLORIA', canvas.width / 2, canvas.height - 130);
+      ctx.fillText('POST TENEBRAS LUX • SOLI DEO GLORIA', canvas.width / 2, canvas.height - 110);
 
       ctx.fillStyle = '#64748B';
-      ctx.font = '18px "Inter", sans-serif';
+      ctx.font = '17px "Inter", sans-serif';
       ctx.letterSpacing = '1px';
-      ctx.fillText('A Aliança das Escrituras • Leitura Bíblica Diária', canvas.width / 2, canvas.height - 90);
+      ctx.fillText('A Aliança das Escrituras • Leitura Bíblica Diária', canvas.width / 2, canvas.height - 75);
 
       // 10. Trigger Download
       const link = document.createElement('a');
@@ -382,23 +451,29 @@ export const ShareReadingModal: React.FC<ShareReadingModalProps> = ({
                 Porção Bíblica Meditada:
               </span>
               {reading.segments.map((s, idx) => (
-                <div key={idx} className="flex items-center gap-1.5 text-slate-200 font-serif">
+                <div key={idx} className="flex items-center gap-2 text-slate-200 font-serif">
                   <BookOpen className="w-3.5 h-3.5 text-reformedGold-500 shrink-0" />
-                  <span className="font-bold text-white">{s.title}:</span>
-                  <span className="text-reformedGold-200">{s.chapters}</span>
+                  <span className="font-bold text-reformedGold-300">{s.title}:</span>
+                  <span className="text-white font-sans text-xs">{s.chapters}</span>
                 </div>
               ))}
             </div>
 
             {/* Featured Verse */}
-            <div className="p-3.5 rounded-xl bg-reformedNavy-950/90 border-l-4 border-reformedGold-500 space-y-1.5">
-              <Quote className="w-4 h-4 text-reformedGold-400/50" />
+            <div className="p-4 rounded-xl bg-reformedNavy-950/90 border-l-4 border-reformedGold-500 space-y-2">
+              <Quote className="w-5 h-5 text-reformedGold-400/50" />
               <p className="bible-text text-sm sm:text-base italic text-reformedGold-100 leading-relaxed">
                 "{reading.verse}"
               </p>
-              <p className="text-right text-[11px] font-bold text-reformedGold-400 font-sans uppercase">
+              <p className="text-right text-xs font-bold text-reformedGold-400 font-sans uppercase">
                 — {reading.reference}
               </p>
+
+              {reading.authorOrCatechism && (
+                <div className="mt-2.5 pt-2.5 border-t border-reformedGold-500/20 text-center text-xs text-slate-400 italic font-serif">
+                  📜 {reading.authorOrCatechism}
+                </div>
+              )}
             </div>
 
             {/* Reformed Footer Stamp */}
