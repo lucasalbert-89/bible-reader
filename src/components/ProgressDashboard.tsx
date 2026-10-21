@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReadingPlanInfo } from '../types';
-import { BookOpen, Flame, Scroll, ShieldAlert } from 'lucide-react';
+import { BookOpen, Flame, Scroll, ShieldAlert, UserCheck, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface ProgressDashboardProps {
@@ -9,6 +9,7 @@ interface ProgressDashboardProps {
   totalDays: number;
   percentage: number;
   onOpenAuth: () => void;
+  onOpenProfile?: () => void;
 }
 
 export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
@@ -17,12 +18,34 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
   totalDays,
   percentage,
   onOpenAuth,
+  onOpenProfile,
 }) => {
-  const { user } = useAuth();
+  const { user, fullName } = useAuth();
   const remainingDays = Math.max(0, totalDays - completedCount);
 
   return (
     <div className="w-full space-y-3 sm:space-y-4">
+      {/* Logged in Personal Greeting Banner */}
+      {user && (
+        <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-reformedGold-500/10 via-amber-500/5 to-transparent border border-reformedGold-300/40 dark:border-reformedNavy-700 flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2.5 text-xs">
+          <div className="flex items-center gap-2">
+            <UserCheck className="w-4 h-4 text-reformedGold-600 dark:text-reformedGold-400 shrink-0" />
+            <span className="text-slate-800 dark:text-slate-200">
+              A paz do Senhor, <strong className="font-bold">{fullName || user.email?.split('@')[0]}</strong>! Você já completou <strong>{completedCount} dias</strong> neste plano.
+            </span>
+          </div>
+          {onOpenProfile && (
+            <button
+              onClick={onOpenProfile}
+              className="text-[11px] font-bold uppercase tracking-wider text-reformedGold-700 dark:text-reformedGold-400 hover:text-reformedGold-800 dark:hover:text-reformedGold-300 flex items-center gap-1 shrink-0 transition-colors"
+            >
+              <span>Ver Minha Área Pessoal</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Guest Mode Advisory Banner */}
       {!user && (
         <div className="p-3.5 sm:p-4 rounded-2xl bg-amber-500/10 border border-reformedGold-500/30 flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2.5 text-amber-950 dark:text-reformedGold-200 text-xs sm:text-sm">

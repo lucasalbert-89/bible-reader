@@ -49,4 +49,12 @@ export interface AuthProfile {
   id: string;
   email: string;
   full_name?: string;
+  birth_date?: string;
+}
+
+export interface UserPlanSummary {
+  planId: PlanId;
+  completedDays: number[];
+  totalDays: number;
+  percentage: number;
 }

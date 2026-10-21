@@ -6,6 +6,7 @@ interface NavbarProps {
   darkMode: boolean;
   onToggleTheme: () => void;
   onOpenAuth: () => void;
+  onOpenProfile?: () => void;
   onOpenBibleReader?: () => void;
   isSyncing: boolean;
   syncedWithCloud: boolean;
@@ -15,12 +16,21 @@ export const Navbar: React.FC<NavbarProps> = ({
   darkMode,
   onToggleTheme,
   onOpenAuth,
+  onOpenProfile,
   onOpenBibleReader,
   isSyncing,
   syncedWithCloud,
 }) => {
-  const { user, signOut } = useAuth();
+  const { user, fullName, signOut } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const firstName = fullName 
+    ? fullName.trim().split(' ')[0] 
+    : (user?.email ? user.email.split('@')[0] : 'Leitor');
+
+  const avatarChar = fullName 
+    ? fullName.trim().charAt(0).toUpperCase() 
+    : (user?.email ? user.email.charAt(0).toUpperCase() : 'R');
 
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-parchment-50/90 dark:bg-reformedNavy-950/90 border-b border-reformedGold-200/50 dark:border-reformedGold-600/20 transition-colors">
@@ -95,15 +105,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-xl border border-reformedGold-200/80 dark:border-reformedNavy-700 bg-white dark:bg-reformedNavy-900 hover:border-reformedGold-400 transition-all shadow-sm active:scale-95"
               >
-                <div className="w-7 h-7 rounded-lg bg-reformedGold-600 text-white flex items-center justify-center font-bold text-xs uppercase shadow-sm">
-                  {user.email ? user.email.charAt(0) : 'R'}
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-reformedGold-500 to-reformedGold-700 text-white flex items-center justify-center font-black text-xs uppercase shadow-sm">
+                  {avatarChar}
                 </div>
                 <div className="hidden lg:flex flex-col text-left">
-                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate max-w-[120px]">
-                    {user.email}
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate max-w-[130px]">
+                    Olá, {firstName}
                   </span>
                   <span className="text-[9px] text-reformedGold-600 dark:text-reformedGold-400 font-semibold flex items-center gap-1">
-                    <Check className="w-2.5 h-2.5" /> Salvo
+                    <Check className="w-2.5 h-2.5" /> Área Pessoal
                   </span>
                 </div>
               </button>
@@ -111,15 +121,37 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Mobile / Desktop Dropdown Menu */}
               {showUserMenu && (
                 <div 
-                  className="absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-reformedNavy-900 border border-slate-200 dark:border-reformedNavy-700 shadow-xl p-3 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute right-0 mt-2 w-60 rounded-2xl bg-white dark:bg-reformedNavy-900 border border-slate-200 dark:border-reformedNavy-700 shadow-xl p-3 z-50 animate-in fade-in zoom-in-95 duration-150 font-sans"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="px-2 py-1.5 mb-2 border-b border-slate-100 dark:border-reformedNavy-800">
-                    <span className="text-[10px] font-bold uppercase text-slate-400 block">Conectado como</span>
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate block">
-                      {user.email}
+                  <div className="px-2.5 py-2 mb-2 border-b border-slate-100 dark:border-reformedNavy-800">
+                    <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                      Leitor Conectado
                     </span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white truncate block">
+                      {fullName || user.email}
+                    </span>
+                    {fullName && (
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate block">
+                        {user.email}
+                      </span>
+                    )}
                   </div>
+
+                  {/* Open Profile Modal */}
+                  {onOpenProfile && (
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        onOpenProfile();
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 bg-reformedGold-50/70 dark:bg-reformedNavy-800 hover:bg-reformedGold-100 dark:hover:bg-reformedNavy-700 border border-reformedGold-200/50 dark:border-reformedNavy-700 transition-all mb-1.5"
+                    >
+                      <UserIcon className="w-4 h-4 text-reformedGold-600 dark:text-reformedGold-400" />
+                      <span>Minha Área & Progresso</span>
+                    </button>
+                  )}
+
                   <button
                     onClick={() => {
                       setShowUserMenu(false);

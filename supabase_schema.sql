@@ -66,3 +66,10 @@ create index if not exists idx_user_reading_progress_user
 
 create index if not exists idx_user_reading_progress_user_plan 
   on public.user_reading_progress (user_id, plan_id);
+
+-- =====================================================================
+-- NOTA SOBRE DADOS DE PERFIL (Nome Completo & Data de Nascimento):
+-- O sistema armazena o Nome Completo e a Data de Nascimento diretamente nos
+-- metadados do usuário (raw_user_meta_data do auth.users), sem exigir
+-- documentos sensíveis (como CPF/RG) e sem necessidade de tabelas extras.
+-- =====================================================================

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { X, Lock, Mail, UserPlus, LogIn, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react';
+import { X, Lock, Mail, UserPlus, LogIn, AlertCircle, CheckCircle2, KeyRound, User, Calendar, ShieldCheck } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -13,6 +13,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,8 +26,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setErrorMsg(null);
     setSuccessMsg(null);
 
+    if (mode === 'signup' && !fullName.trim()) {
+      setErrorMsg('Por favor, informe seu nome completo para personalizarmos sua jornada.');
+      return;
+    }
+
     if (!email || !password) {
-      setErrorMsg('Por favor, preencha todos os campos.');
+      setErrorMsg('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -50,14 +57,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           }, 1200);
         }
       } else {
-        const { error } = await signUp(email, password);
+        const { error } = await signUp(email, password, fullName.trim(), birthDate);
         if (error) {
           setErrorMsg(error.message);
         } else {
-          setSuccessMsg('Conta criada com sucesso! Verifique seu e-mail caso seja necessária confirmação.');
+          setSuccessMsg('Conta criada com sucesso! Seja muito bem-vindo(a).');
           setTimeout(() => {
             onClose();
-          }, 2000);
+          }, 1600);
         }
       }
     } catch (err: any) {
@@ -128,6 +135,57 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5">
+          {mode === 'signup' && (
+            <>
+              {/* Full Name */}
+              <div>
+                <label className="block text-[11px] font-bold uppercase text-slate-700 dark:text-slate-300 tracking-wider mb-1 font-sans">
+                  Nome Completo
+                </label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Ex: Carlos Eduardo Silva"
+                    required
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-white dark:bg-reformedNavy-950 border border-slate-200 dark:border-reformedNavy-700 text-slate-900 dark:text-white placeholder-slate-400 text-base focus:outline-none focus:border-reformedGold-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Birth Date (Optional) */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-bold uppercase text-slate-700 dark:text-slate-300 tracking-wider font-sans">
+                    Data de Nascimento
+                  </label>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-sans italic">
+                    Opcional
+                  </span>
+                </div>
+                <div className="relative">
+                  <Calendar className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                  <input
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-white dark:bg-reformedNavy-950 border border-slate-200 dark:border-reformedNavy-700 text-slate-900 dark:text-white placeholder-slate-400 text-base focus:outline-none focus:border-reformedGold-500 transition-all font-sans"
+                  />
+                </div>
+              </div>
+
+              {/* Privacy notice banner */}
+              <div className="p-2.5 rounded-xl bg-reformedGold-500/10 border border-reformedGold-500/20 text-reformedGold-800 dark:text-reformedGold-300 text-[11px] flex items-start gap-2 leading-snug">
+                <ShieldCheck className="w-4 h-4 shrink-0 text-reformedGold-600 dark:text-reformedGold-400 mt-0.5" />
+                <span>
+                  <strong>Privacidade garantida:</strong> Não solicitamos CPF, documentos ou dados sensíveis. Apenas seu nome para acolher sua jornada.
+                </span>
+              </div>
+            </>
+          )}
+
           <div>
             <label className="block text-[11px] font-bold uppercase text-slate-700 dark:text-slate-300 tracking-wider mb-1 font-sans">
               E-mail

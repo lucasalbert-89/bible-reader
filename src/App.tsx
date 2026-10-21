@@ -5,6 +5,7 @@ import { ProgressDashboard } from './components/ProgressDashboard';
 import { MonthNavigation } from './components/MonthNavigation';
 import { DayDetailModal } from './components/DayDetailModal';
 import { AuthModal } from './components/AuthModal';
+import { UserProfileModal } from './components/UserProfileModal';
 import { BibleReaderModal, BibleTargetPointer } from './components/BibleReaderModal';
 import { useReadingProgress } from './hooks/useReadingProgress';
 import { getPlanDays } from './data/planGenerator';
@@ -63,6 +64,9 @@ export function App() {
   // Auth modal
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
+  // User Profile modal
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
   // When plan changes, reset the active month to view overview
   const handleSelectPlan = (planId: typeof selectedPlan) => {
     setSelectedPlan(planId);
@@ -114,6 +118,7 @@ export function App() {
         darkMode={darkMode}
         onToggleTheme={toggleTheme}
         onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenProfile={() => setIsProfileOpen(true)}
         onOpenBibleReader={() => handleOpenReader('Gênesis', 1)}
         isSyncing={isSyncing}
         syncedWithCloud={syncedWithCloud}
@@ -154,6 +159,7 @@ export function App() {
             totalDays={totalDays}
             percentage={progressPercentage}
             onOpenAuth={() => setIsAuthOpen(true)}
+            onOpenProfile={() => setIsProfileOpen(true)}
           />
         </section>
 
@@ -220,6 +226,18 @@ export function App() {
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
+      />
+
+      {/* User Profile / Personal Area Modal */}
+      <UserProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        selectedPlan={selectedPlan}
+        completedDays={completedDays}
+        totalDays={totalDays}
+        progressPercentage={progressPercentage}
+        onSelectPlan={handleSelectPlan}
+        onContinueReading={(day) => handleSelectDay(day)}
       />
 
     </div>
