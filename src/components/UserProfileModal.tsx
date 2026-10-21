@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   ArrowRight,
   CheckCircle2,
+  Lock,
 } from 'lucide-react';
 
 interface UserProfileModalProps {
@@ -36,12 +37,13 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   onSelectPlan,
   onContinueReading,
 }) => {
-  const { user, fullName, birthDate, updateProfile, signOut } = useAuth();
+  const { user, fullName, birthDate, updateProfile, updatePassword, signOut } = useAuth();
 
   // Profile Edit State
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(fullName);
   const [editBirthDate, setEditBirthDate] = useState(birthDate);
+  const [editPassword, setEditPassword] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -111,6 +113,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const handleStartEdit = () => {
     setEditName(fullName);
     setEditBirthDate(birthDate);
+    setEditPassword('');
     setErrorMsg(null);
     setSaveSuccess(false);
     setIsEditing(true);
@@ -123,6 +126,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       return;
     }
 
+    if (editPassword && editPassword.length < 6) {
+      setErrorMsg('A nova senha precisa ter pelo menos 6 caracteres.');
+      return;
+    }
+
     setSaving(true);
     setErrorMsg(null);
 
@@ -131,17 +139,28 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       birthDate: editBirthDate,
     });
 
-    setSaving(false);
-
     if (error) {
+      setSaving(false);
       setErrorMsg(error.message);
-    } else {
-      setSaveSuccess(true);
-      setTimeout(() => {
-        setIsEditing(false);
-        setSaveSuccess(false);
-      }, 1200);
+      return;
     }
+
+    if (editPassword.trim()) {
+      const { error: pwdErr } = await updatePassword(editPassword);
+      if (pwdErr) {
+        setSaving(false);
+        setErrorMsg(pwdErr.message);
+        return;
+      }
+    }
+
+    setSaving(false);
+    setSaveSuccess(true);
+    setEditPassword('');
+    setTimeout(() => {
+      setIsEditing(false);
+      setSaveSuccess(false);
+    }, 1200);
   };
 
   return (
@@ -267,6 +286,27 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Change Password (Optional) */}
+            <div className="pt-2 border-t border-reformedGold-200/40 dark:border-reformedNavy-800">
+              <label className="block text-[11px] font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">
+                Nova Senha (Opcional)
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <input
+                  type="password"
+                  value={editPassword}
+                  onChange={(e) => setEditPassword(e.target.value)}
+                  placeholder="Preencha apenas se quiser redefinir sua senha"
+                  minLength={6}
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-reformedNavy-900 border border-slate-200 dark:border-reformedNavy-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-reformedGold-500 font-sans"
+                />
+              </div>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 italic">
+                Dica: Alterar a senha diretamente por aqui é imediato e não consome limite de e-mails do Supabase.
+              </p>
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2">

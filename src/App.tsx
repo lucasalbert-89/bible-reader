@@ -10,6 +10,7 @@ import { BibleReaderModal, BibleTargetPointer } from './components/BibleReaderMo
 import { useReadingProgress } from './hooks/useReadingProgress';
 import { getPlanDays } from './data/planGenerator';
 import { DayReading } from './types';
+import { useAuth } from './context/AuthContext';
 import { BookOpen, Scroll, Shield } from 'lucide-react';
 
 export function App() {
@@ -63,6 +64,14 @@ export function App() {
 
   // Auth modal
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const { isRecoveryMode, setIsRecoveryMode } = useAuth();
+
+  // Auto-open AuthModal in update_password mode when recovery is triggered
+  useEffect(() => {
+    if (isRecoveryMode) {
+      setIsAuthOpen(true);
+    }
+  }, [isRecoveryMode]);
 
   // User Profile modal
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -225,7 +234,11 @@ export function App() {
       {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
+        onClose={() => {
+          setIsAuthOpen(false);
+          setIsRecoveryMode(false);
+        }}
+        initialMode={isRecoveryMode ? 'update_password' : 'signin'}
       />
 
       {/* User Profile / Personal Area Modal */}

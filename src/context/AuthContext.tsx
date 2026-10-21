@@ -9,8 +9,12 @@ interface AuthContextType {
   isSupabaseReady: boolean;
   fullName: string;
   birthDate: string;
+  isRecoveryMode: boolean;
+  setIsRecoveryMode: (val: boolean) => void;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName?: string, birthDate?: string) => Promise<{ error: Error | null }>;
+  resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
+  updatePassword: (password: string) => Promise<{ error: Error | null }>;
   updateProfile: (data: { fullName?: string; birthDate?: string }) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -22,8 +26,12 @@ const AuthContext = createContext<AuthContextType>({
   isSupabaseReady: false,
   fullName: '',
   birthDate: '',
+  isRecoveryMode: false,
+  setIsRecoveryMode: () => {},
   signIn: async () => ({ error: null }),
   signUp: async () => ({ error: null }),
+  resetPasswordForEmail: async () => ({ error: null }),
+  updatePassword: async () => ({ error: null }),
   updateProfile: async () => ({ error: null }),
   signOut: async () => {},
 });
@@ -32,11 +40,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRecoveryMode, setIsRecoveryMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.location.hash.includes('type=recovery') || 
+             window.location.search.includes('type=recovery');
+    }
+    return false;
+  });
 
   useEffect(() => {
     if (!supabase) {
       setLoading(false);
       return;
+    }
+
+    // Check URL on mount
+    if (window.location.hash.includes('type=recovery') || window.location.search.includes('type=recovery')) {
+      setIsRecoveryMode(true);
     }
 
     // Get initial session
@@ -47,10 +67,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     // Listen to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecoveryMode(true);
+      }
     });
 
     return () => {
@@ -80,6 +104,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     });
+    return { error };
+  };
+
+  const resetPasswordForEmail = async (email: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase não configurado. Verifique as variáveis no arquivo .env') };
+    }
+    const redirectUrl = `${window.location.origin}/`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: redirectUrl,
+    });
+    return { error };
+  };
+
+  const updatePassword = async (password: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase não configurado.') };
+    }
+    const { error } = await supabase.auth.updateUser({
+      password,
+    });
+    if (!error) {
+      setIsRecoveryMode(false);
+      if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    }
     return { error };
   };
 
@@ -121,8 +172,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isSupabaseReady: isSupabaseConfigured,
         fullName,
         birthDate,
+        isRecoveryMode,
+        setIsRecoveryMode,
         signIn,
         signUp,
+        resetPasswordForEmail,
+        updatePassword,
         updateProfile,
         signOut,
       }}
