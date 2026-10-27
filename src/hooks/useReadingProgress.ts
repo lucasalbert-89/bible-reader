@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { PlanId } from '../types';
+import { PlanId, ReadingMode } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { fetchUserProgress, syncProgressToSupabase } from '../lib/supabase';
 import { PLANS_INFO } from '../data/plansInfo';
@@ -15,6 +15,20 @@ export function useReadingProgress() {
     }
     return 'plano-365';
   });
+
+  // Reading mode: 'misto' (AT + Salmos/Provérbios + NT) or 'sequencial' (Gênesis a Apocalipse direto)
+  const [readingMode, setReadingModeState] = useState<ReadingMode>(() => {
+    const saved = localStorage.getItem('biblia_reading_mode');
+    if (saved === 'misto' || saved === 'sequencial') {
+      return saved;
+    }
+    return 'misto';
+  });
+
+  const setReadingMode = (mode: ReadingMode) => {
+    setReadingModeState(mode);
+    localStorage.setItem('biblia_reading_mode', mode);
+  };
 
   // Completed days for the active plan
   const [completedDays, setCompletedDays] = useState<number[]>(() => {
@@ -129,6 +143,8 @@ export function useReadingProgress() {
   return {
     selectedPlan,
     setSelectedPlan,
+    readingMode,
+    setReadingMode,
     currentPlanInfo,
     completedDays,
     toggleDay,

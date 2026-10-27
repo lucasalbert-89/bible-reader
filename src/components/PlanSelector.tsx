@@ -1,16 +1,20 @@
 import React from 'react';
-import { PlanId } from '../types';
+import { PlanId, ReadingMode } from '../types';
 import { PLANS_INFO } from '../data/plansInfo';
-import { BookOpen, Scroll, Compass } from 'lucide-react';
+import { BookOpen, Scroll, Compass, Layers, ListOrdered } from 'lucide-react';
 
 interface PlanSelectorProps {
   selectedPlan: PlanId;
   onSelectPlan: (planId: PlanId) => void;
+  readingMode: ReadingMode;
+  onSelectMode: (mode: ReadingMode) => void;
 }
 
 export const PlanSelector: React.FC<PlanSelectorProps> = ({
   selectedPlan,
   onSelectPlan,
+  readingMode,
+  onSelectMode,
 }) => {
   const getIcon = (id: PlanId, className = "w-4 h-4") => {
     switch (id) {
@@ -27,8 +31,8 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
 
   return (
     <div className="w-full space-y-3 sm:space-y-4">
-      {/* Section Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1">
+      {/* Section Header + Reading Mode Selector */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <h2 className="display-title text-lg sm:text-2xl font-bold uppercase tracking-wider text-slate-900 dark:text-reformedGold-100">
             Planos da Aliança
@@ -36,6 +40,35 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
           <p className="text-xs text-slate-600 dark:text-slate-400 font-serif italic">
             O conselho integral de Deus para edificação e santificação do povo da aliança
           </p>
+        </div>
+
+        {/* Reading Mode Switcher (AT + Salmos/Provérbios + NT vs Sequencial Gênesis a Apocalipse) */}
+        <div className="inline-flex p-1 rounded-2xl bg-parchment-200/70 dark:bg-reformedNavy-900 border border-reformedGold-300/50 dark:border-reformedNavy-700 self-start md:self-auto">
+          <button
+            type="button"
+            onClick={() => onSelectMode('misto')}
+            className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 ${
+              readingMode === 'misto'
+                ? 'bg-white dark:bg-reformedNavy-800 text-slate-900 dark:text-reformedGold-200 shadow-sm border border-reformedGold-400/60'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5 text-reformedGold-600 dark:text-reformedGold-400 shrink-0" />
+            <span>AT + Salmos/Prov. + NT</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onSelectMode('sequencial')}
+            className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 ${
+              readingMode === 'sequencial'
+                ? 'bg-white dark:bg-reformedNavy-800 text-slate-900 dark:text-reformedGold-200 shadow-sm border border-reformedGold-400/60'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <ListOrdered className="w-3.5 h-3.5 text-reformedGold-600 dark:text-reformedGold-400 shrink-0" />
+            <span>Direto (Gênesis a Apocalipse)</span>
+          </button>
         </div>
       </div>
 

@@ -1,5 +1,7 @@
 export type PlanId = 'plano-365' | 'plano-180' | 'plano-90';
 
+export type ReadingMode = 'misto' | 'sequencial';
+
 export type BibleVersionId = 'nvi' | 'naa' | 'acf';
 
 export interface BibleVersionInfo {

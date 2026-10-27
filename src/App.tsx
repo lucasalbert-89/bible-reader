@@ -7,6 +7,7 @@ import { DayDetailModal } from './components/DayDetailModal';
 import { AuthModal } from './components/AuthModal';
 import { UserProfileModal } from './components/UserProfileModal';
 import { BibleReaderModal, BibleTargetPointer } from './components/BibleReaderModal';
+import { UpdateNoticeModal } from './components/UpdateNoticeModal';
 import { useReadingProgress } from './hooks/useReadingProgress';
 import { getPlanDays } from './data/planGenerator';
 import { DayReading } from './types';
@@ -37,6 +38,8 @@ export function App() {
   const {
     selectedPlan,
     setSelectedPlan,
+    readingMode,
+    setReadingMode,
     currentPlanInfo,
     completedDays,
     toggleDay,
@@ -84,7 +87,7 @@ export function App() {
 
   // Open day detail modal
   const handleSelectDay = (globalDay: number) => {
-    const allDays = getPlanDays(selectedPlan);
+    const allDays = getPlanDays(selectedPlan, readingMode);
     const dayData = allDays.find(d => d.day === globalDay);
     if (dayData) {
       setSelectedDayReading(dayData);
@@ -97,7 +100,7 @@ export function App() {
     setReaderDayNumber(dayNumber);
 
     if (dayNumber !== undefined) {
-      const allDays = getPlanDays(selectedPlan);
+      const allDays = getPlanDays(selectedPlan, readingMode);
       const dayData = allDays.find(d => d.day === dayNumber);
       if (dayData) {
         const portions: BibleTargetPointer[] = [];
@@ -157,6 +160,8 @@ export function App() {
           <PlanSelector
             selectedPlan={selectedPlan}
             onSelectPlan={handleSelectPlan}
+            readingMode={readingMode}
+            onSelectMode={setReadingMode}
           />
         </section>
 
@@ -252,6 +257,9 @@ export function App() {
         onSelectPlan={handleSelectPlan}
         onContinueReading={(day) => handleSelectDay(day)}
       />
+
+      {/* Reading Plan Update Notice Modal */}
+      <UpdateNoticeModal />
 
     </div>
   );
