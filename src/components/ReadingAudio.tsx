@@ -6,6 +6,8 @@ import { BibleVersionId } from '../types';
 interface Portion { bookName: string; chapter: number }
 interface SpeechPart { text: string; label: string }
 
+const MALE_VOICE_HINT = /\b(daniel|antonio|antônio|ricardo|felipe|tiago|paulo|rodrigo|lucas|male|homem|masculin[ao])\b/i;
+
 export function ReadingAudio({ version, portions, daily }: {
   version: BibleVersionId; portions: Portion[]; daily: boolean;
 }) {
@@ -27,7 +29,11 @@ export function ReadingAudio({ version, portions, daily }: {
     let waited = false;
     const check = () => {
       const voices = synth.getVoices().filter(v => /^pt(?:[-_]|$)/i.test(v.lang));
-      voices.sort((a, b) => Number(b.localService) - Number(a.localService) || Number(/^pt[-_]BR$/i.test(b.lang)) - Number(/^pt[-_]BR$/i.test(a.lang)));
+      voices.sort((a, b) =>
+        Number(MALE_VOICE_HINT.test(b.name)) - Number(MALE_VOICE_HINT.test(a.name)) ||
+        Number(b.localService) - Number(a.localService) ||
+        Number(/^pt[-_]BR$/i.test(b.lang)) - Number(/^pt[-_]BR$/i.test(a.lang))
+      );
       voice.current = voices[0];
       setAvailability(voices.length ? 'ready' : waited ? 'missing' : 'loading');
     };
@@ -56,7 +62,7 @@ export function ReadingAudio({ version, portions, daily }: {
   const stop = () => {
     generation.current++;
     paused.current = false;
-    window.speechSynthesis.cancel();
+    if (supported) window.speechSynthesis.cancel();
     utterance.current = undefined;
     setStatus('idle');
     setMessage('');

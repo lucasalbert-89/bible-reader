@@ -68,6 +68,43 @@ create index if not exists idx_user_reading_progress_user_plan
   on public.user_reading_progress (user_id, plan_id);
 
 -- =====================================================================
+-- 6. CACHE DE ÁUDIO BÍBLICO (GOOGLE TTS - RETENÇÃO DE 20 DIAS)
+-- =====================================================================
+create table if not exists public.bible_audio_cache (
+  cache_key text primary key,
+  version text not null,
+  book_name text not null,
+  chapter integer not null,
+  voice_name text not null,
+  file_path text not null,
+  char_count integer not null default 0,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  last_accessed_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.bible_audio_cache enable row level security;
+
+drop policy if exists "Leitura pública do índice de cache de áudio" on public.bible_audio_cache;
+create policy "Leitura pública do índice de cache de áudio"
+  on public.bible_audio_cache
+  for select
+  using (true);
+
+create index if not exists idx_bible_audio_cache_last_accessed
+  on public.bible_audio_cache (last_accessed_at);
+
+-- Bucket público para armazenar os MP3s gerados em cache
+insert into storage.buckets (id, name, public)
+values ('bible-audio', 'bible-audio', true)
+on conflict (id) do update set public = true;
+
+drop policy if exists "Leitura pública dos áudios da Bíblia" on storage.objects;
+create policy "Leitura pública dos áudios da Bíblia"
+  on storage.objects
+  for select
+  using (bucket_id = 'bible-audio');
+
+-- =====================================================================
 -- NOTA SOBRE DADOS DE PERFIL (Nome Completo & Data de Nascimento):
 -- O sistema armazena o Nome Completo e a Data de Nascimento diretamente nos
 -- metadados do usuário (raw_user_meta_data do auth.users), sem exigir
