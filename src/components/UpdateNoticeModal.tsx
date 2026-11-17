@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { X, BookOpen, Layers, ListOrdered, HeartHandshake } from 'lucide-react';
+import { X, Volume2 } from 'lucide-react';
 
-const NOTICE_STORAGE_KEY = 'biblia_update_notice_v2_dismissed';
+const NOTICE_STORAGE_KEY = 'biblia_update_notice_v3_audio_dismissed';
 
 export const UpdateNoticeModal: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const dismissed = localStorage.getItem(NOTICE_STORAGE_KEY);
-    if (!dismissed) {
-      setIsOpen(true);
-    }
+    try { setIsOpen(!localStorage.getItem(NOTICE_STORAGE_KEY)); }
+    catch { setIsOpen(true); }
   }, []);
 
   const handleClose = () => {
-    localStorage.setItem(NOTICE_STORAGE_KEY, 'true');
+    try { localStorage.setItem(NOTICE_STORAGE_KEY, 'true'); } catch { /* Storage may be disabled. */ }
     setIsOpen(false);
   };
 
@@ -33,14 +31,14 @@ export const UpdateNoticeModal: React.FC = () => {
         <div className="p-4 sm:p-5 border-b border-reformedGold-200/60 dark:border-reformedNavy-800 flex justify-between items-center bg-white/70 dark:bg-reformedNavy-950/80">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-xl bg-reformedGold-100 dark:bg-reformedNavy-800 flex items-center justify-center text-reformedGold-600 dark:text-reformedGold-400 border border-reformedGold-300/50 shrink-0">
-              <BookOpen className="w-5 h-5" />
+              <Volume2 className="w-5 h-5" />
             </div>
             <div>
               <span className="text-[10px] font-black uppercase text-reformedGold-700 dark:text-reformedGold-400 tracking-widest block font-sans">
                 Comunicado aos Leitores
               </span>
               <h3 className="display-title text-base sm:text-lg font-bold text-slate-900 dark:text-reformedGold-100">
-                Atualização nos Planos de Leitura
+                Agora você pode ouvir a leitura do dia!
               </h3>
             </div>
           </div>
@@ -54,47 +52,12 @@ export const UpdateNoticeModal: React.FC = () => {
           </button>
         </div>
 
-        {/* Body */}
-        <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-          <p className="font-serif text-sm sm:text-base text-slate-800 dark:text-slate-200">
-            A paz do Senhor! Realizamos um importante ajuste na estrutura dos nossos planos de leitura (<strong>365, 180 e 90 dias</strong>) para oferecer uma distribuição bíblica ainda mais fiel e acrescentamos uma nova modalidade de leitura:
-          </p>
-
-          <div className="space-y-3">
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-reformedNavy-800/80 border border-reformedGold-200/70 dark:border-reformedNavy-700 flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-reformedGold-100 dark:bg-reformedNavy-900 text-reformedGold-700 dark:text-reformedGold-400 shrink-0 mt-0.5">
-                <Layers className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 dark:text-reformedGold-100 text-xs sm:text-sm mb-0.5">
-                  1. Modo AT + Salmos e Provérbios + NT (365, 180 e 90 dias)
-                </h4>
-                <p className="text-xs text-slate-600 dark:text-slate-300">
-                  O <strong>Antigo Testamento</strong> é percorrido de forma contínua do início ao fim (incluindo Jó, Eclesiastes e Cantares na ordem bíblica), enquanto <strong>Salmos e Provérbios</strong> e o <strong>Novo Testamento</strong> repetem 1 vez (2 ciclos completos ao longo do plano).
-                </p>
-              </div>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-reformedNavy-800/80 border border-reformedGold-200/70 dark:border-reformedNavy-700 flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-reformedGold-100 dark:bg-reformedNavy-900 text-reformedGold-700 dark:text-reformedGold-400 shrink-0 mt-0.5">
-                <ListOrdered className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 dark:text-reformedGold-100 text-xs sm:text-sm mb-0.5">
-                  2. Novo Modo Direto: Gênesis a Apocalipse (365, 180 e 90 dias)
-                </h4>
-                <p className="text-xs text-slate-600 dark:text-slate-300">
-                  Agora você também pode optar pela leitura sequencial direta de <strong>Gênesis a Apocalipse</strong> sem alternar entre Antigo Testamento, Poéticos e Novo Testamento, em qualquer plano de dias.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-reformedGold-50/80 dark:bg-reformedNavy-950/90 border border-reformedGold-300/60 dark:border-reformedGold-600/30 flex items-start gap-2.5">
-            <HeartHandshake className="w-4 h-4 text-reformedGold-600 dark:text-reformedGold-400 shrink-0 mt-0.5" />
-            <p className="text-xs text-slate-700 dark:text-reformedGold-200 font-serif italic">
-              Pedimos sinceras desculpas por qualquer inconveniência que esta atualização nas porções diárias possa causar no seu acompanhamento atual. Seu progresso de dias concluídos permanece salvo!
-            </p>
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+          <p>Abra a leitura de um dia do seu plano e toque em <strong>“Ouvir leitura do dia”</strong>. A voz lê os capítulos daquele dia, do início ao fim, na versão bíblica que você escolheu.</p>
+          <p>A função é <strong>gratuita</strong> e usa as vozes disponíveis no seu celular, computador ou navegador. A voz e a qualidade podem variar conforme o aparelho; algumas vozes precisam de internet.</p>
+          <p>Você pode pausar, continuar ou parar. Ao continuar, o trecho atual pode ser repetido. Ao fechar o leitor ou trocar de capítulo ou versão, a narração para.</p>
+          <div className="p-3.5 rounded-2xl bg-reformedGold-50 dark:bg-reformedNavy-950 border border-reformedGold-300/60 dark:border-reformedGold-600/30">
+            Se não houver uma voz em português disponível, ou se o navegador não oferecer esse recurso, o leitor mostrará um aviso. A leitura do texto continua disponível normalmente.
           </div>
         </div>
 

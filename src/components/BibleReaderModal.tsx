@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { ReadingAudio } from './ReadingAudio';
 import { BibleVersionId } from '../types';
 import { 
   BIBLE_VERSIONS, 
@@ -306,6 +307,12 @@ export const BibleReaderModal: React.FC<BibleReaderModalProps> = ({
             </div>
           )}
 
+          <ReadingAudio
+            key={`${version}:${currentBook}:${currentChapter}:${dayNumber ?? 'free'}`}
+            version={version}
+            daily={dayPortions.length > 0}
+            portions={dayPortions.length > 0 ? dayPortions : [{ bookName: currentBook, chapter: currentChapter }]}
+          />
         </header>
 
         {/* Book Selector Drawer (Overlay) */}
