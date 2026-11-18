@@ -307,12 +307,23 @@ export const BibleReaderModal: React.FC<BibleReaderModalProps> = ({
             </div>
           )}
 
-          <ReadingAudio
-            key={`${version}:${currentBook}:${currentChapter}:${dayNumber ?? 'free'}`}
-            version={version}
-            daily={dayPortions.length > 0}
-            portions={dayPortions.length > 0 ? dayPortions : [{ bookName: currentBook, chapter: currentChapter }]}
-          />
+          {(() => {
+            const activeIdx = dayPortions.findIndex(
+              p => p.bookName === currentBook && p.chapter === currentChapter
+            );
+            const isDailyContext = activeIdx >= 0;
+            const audioPortions = isDailyContext
+              ? dayPortions.slice(activeIdx)
+              : [{ bookName: currentBook, chapter: currentChapter }];
+            return (
+              <ReadingAudio
+                key={`${version}:${currentBook}:${currentChapter}:${dayNumber ?? 'free'}`}
+                version={version}
+                daily={isDailyContext}
+                portions={audioPortions}
+              />
+            );
+          })()}
         </header>
 
         {/* Book Selector Drawer (Overlay) */}
