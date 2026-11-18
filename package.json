@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "audio:panel": "node scripts/generate-bible-audio.mjs --panel",
+    "audio:naa": "node scripts/generate-bible-audio.mjs --version=naa"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

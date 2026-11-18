@@ -5,8 +5,28 @@ import { BibleVersionId } from '../types';
 
 interface Portion { bookName: string; chapter: number }
 interface SpeechPart { text: string; label: string }
+interface ChapterPayload {
+  bookName: string;
+  chapter: number;
+  slug: string;
+  label: string;
+  verses: string[];
+}
+
+const HF_AUDIO_BASE =
+  import.meta.env.VITE_BIBLE_AUDIO_BASE_URL ||
+  'https://huggingface.co/datasets/lucasalbert89/bible-audio/resolve/main';
 
 const MALE_VOICE_HINT = /\b(daniel|antonio|antônio|ricardo|felipe|tiago|paulo|rodrigo|lucas|male|homem|masculin[ao])\b/i;
+
+function slugifyBook(bookName: string): string {
+  return bookName
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 export function ReadingAudio({ version, portions, daily }: {
   version: BibleVersionId; portions: Portion[]; daily: boolean;
@@ -14,10 +34,13 @@ export function ReadingAudio({ version, portions, daily }: {
   const supported = typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
   const [availability, setAvailability] = useState<'loading' | 'ready' | 'missing' | 'unsupported'>(supported ? 'loading' : 'unsupported');
   const [status, setStatus] = useState<'idle' | 'loading' | 'playing' | 'paused'>('idle');
+  const [engine, setEngine] = useState<'recorded' | 'browser'>('recorded');
   const [message, setMessage] = useState('');
+
   const voice = useRef<SpeechSynthesisVoice>();
   const generation = useRef(0);
   const utterance = useRef<SpeechSynthesisUtterance>();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const queue = useRef<SpeechPart[]>([]);
   const cursor = useRef(0);
   const paused = useRef(false);
@@ -48,12 +71,23 @@ export function ReadingAudio({ version, portions, daily }: {
     };
   }, [supported]);
 
+  const stopAudioElement = () => {
+    if (audioRef.current) {
+      audioRef.current.onended = null;
+      audioRef.current.onerror = null;
+      audioRef.current.pause();
+      audioRef.current.src = '';
+      audioRef.current = null;
+    }
+  };
+
   useEffect(() => {
     setStatus('idle');
     setMessage('');
     return () => {
       generation.current++;
       paused.current = false;
+      stopAudioElement();
       if (supported) window.speechSynthesis.cancel();
       utterance.current = undefined;
     };
@@ -62,19 +96,24 @@ export function ReadingAudio({ version, portions, daily }: {
   const stop = () => {
     generation.current++;
     paused.current = false;
+    stopAudioElement();
     if (supported) window.speechSynthesis.cancel();
     utterance.current = undefined;
     setStatus('idle');
     setMessage('');
   };
 
-  const speak = (token: number) => {
+  const speakBrowser = (token: number, onAllDone?: () => void) => {
     if (generation.current !== token || paused.current) return;
     const part = queue.current[cursor.current];
     if (!part) {
-      setStatus('idle');
-      setMessage(daily ? 'Leitura do dia finalizada.' : 'Leitura do capítulo finalizada.');
       utterance.current = undefined;
+      if (onAllDone) {
+        onAllDone();
+      } else {
+        setStatus('idle');
+        setMessage(daily ? 'Leitura do dia finalizada.' : 'Leitura do capítulo finalizada.');
+      }
       return;
     }
     const item = new SpeechSynthesisUtterance(part.text);
@@ -85,7 +124,7 @@ export function ReadingAudio({ version, portions, daily }: {
     item.onend = () => {
       if (generation.current !== token) return;
       cursor.current++;
-      speak(token);
+      speakBrowser(token, onAllDone);
     };
     item.onerror = () => {
       if (generation.current !== token) return;
@@ -97,26 +136,89 @@ export function ReadingAudio({ version, portions, daily }: {
     try { window.speechSynthesis.speak(item); } catch { item.onerror?.(new Event('error') as SpeechSynthesisErrorEvent); }
   };
 
+  const playChapterFallbackBrowser = (chapters: ChapterPayload[], index: number, token: number) => {
+    const ch = chapters[index];
+    if (!ch || !supported || !voice.current) {
+      setStatus('idle');
+      setMessage('Áudio deste capítulo ainda não disponível.');
+      return;
+    }
+    setEngine('browser');
+    queue.current = [
+      { text: `${ch.bookName}, capítulo ${ch.chapter}.`, label: ch.label },
+      ...ch.verses.flatMap((text, vIdx) => {
+        const chunks = text.match(/.{1,200}(?:\s|$)|\S{1,200}/g) || [text];
+        return chunks.map(chunk => ({ text: chunk, label: `${ch.label} • Versículo ${vIdx + 1}` }));
+      }),
+    ];
+    cursor.current = 0;
+    setStatus('playing');
+    speakBrowser(token, () => {
+      playChapterAt(chapters, index + 1, token);
+    });
+  };
+
+  const playChapterAt = (chapters: ChapterPayload[], index: number, token: number) => {
+    if (generation.current !== token || paused.current) return;
+    const current = chapters[index];
+    if (!current) {
+      setStatus('idle');
+      setMessage(daily ? 'Leitura do dia finalizada.' : 'Leitura do capítulo finalizada.');
+      return;
+    }
+
+    setStatus('loading');
+    setMessage(`Carregando áudio • ${current.label}`);
+
+    const mp3Url = `${HF_AUDIO_BASE}/${version}/${current.slug}-${current.chapter}.mp3`;
+    const audio = new Audio(mp3Url);
+    audioRef.current = audio;
+
+    audio.onended = () => {
+      if (generation.current !== token) return;
+      stopAudioElement();
+      playChapterAt(chapters, index + 1, token);
+    };
+
+    audio.onerror = () => {
+      if (generation.current !== token) return;
+      stopAudioElement();
+      // Se o MP3 ainda não foi gerado no Hugging Face, usa a voz do navegador neste capítulo
+      playChapterFallbackBrowser(chapters, index, token);
+    };
+
+    audio.play().then(() => {
+      if (generation.current !== token) {
+        stopAudioElement();
+        return;
+      }
+      setEngine('recorded');
+      setStatus('playing');
+      setMessage(`${current.label} • Voz Narrada`);
+    }).catch(() => {
+      if (generation.current !== token) return;
+      stopAudioElement();
+      playChapterFallbackBrowser(chapters, index, token);
+    });
+  };
+
   const start = async () => {
-    if (!voice.current) return;
     stop();
     const token = generation.current;
     setStatus('loading');
     try {
-      const chapters = await Promise.all(portions.map(p => getChapterData(version, p.bookName, p.chapter)));
+      const loaded = await Promise.all(portions.map(p => getChapterData(version, p.bookName, p.chapter)));
       if (generation.current !== token) return;
-      queue.current = chapters.flatMap(chapter => {
-        const label = `${chapter.bookName} ${chapter.chapter} • ${version.toUpperCase()}`;
-        return [{ text: `${chapter.bookName}, capítulo ${chapter.chapter}.`, label },
-          ...chapter.verses.flatMap((text, index) => {
-            // Short utterances keep long chapters reliable on mobile engines.
-            const chunks = text.match(/.{1,200}(?:\s|$)|\S{1,200}/g) || [text];
-            return chunks.map(chunk => ({ text: chunk, label: `${label} • Versículo ${index + 1}` }));
-          })];
-      });
-      cursor.current = 0;
-      setStatus('playing');
-      speak(token);
+
+      const chapters: ChapterPayload[] = loaded.map(ch => ({
+        bookName: ch.bookName,
+        chapter: ch.chapter,
+        slug: slugifyBook(ch.bookName),
+        label: `${ch.bookName} ${ch.chapter} • ${version.toUpperCase()}`,
+        verses: ch.verses,
+      }));
+
+      playChapterAt(chapters, 0, token);
     } catch {
       if (generation.current !== token) return;
       setStatus('idle');
@@ -125,8 +227,22 @@ export function ReadingAudio({ version, portions, daily }: {
   };
 
   const togglePause = () => {
+    if (engine === 'recorded' && audioRef.current) {
+      if (status === 'playing') {
+        paused.current = true;
+        audioRef.current.pause();
+        setStatus('paused');
+      } else {
+        paused.current = false;
+        audioRef.current.play().then(() => setStatus('playing')).catch(() => {
+          setStatus('idle');
+          setMessage('Não foi possível retomar o áudio.');
+        });
+      }
+      return;
+    }
+
     if (status === 'playing') {
-      // Cancel and replay the current short passage: native pause is unreliable on Android.
       paused.current = true;
       generation.current++;
       window.speechSynthesis.cancel();
@@ -134,20 +250,23 @@ export function ReadingAudio({ version, portions, daily }: {
     } else {
       paused.current = false;
       setStatus('playing');
-      speak(generation.current);
+      speakBrowser(generation.current);
     }
   };
 
-  const hint = availability === 'loading' ? 'Verificando as vozes disponíveis…'
+  const hint = engine === 'recorded'
+    ? 'Narração padronizada em alta qualidade (com fallback automático para a voz do navegador nos capítulos em geração).'
+    : availability === 'loading' ? 'Verificando as vozes disponíveis…'
     : availability === 'unsupported' ? 'A leitura em voz não está disponível neste navegador.'
     : availability === 'missing' ? 'Não encontramos uma voz em português. Confira as configurações de voz do aparelho ou tente outro navegador.'
-    : 'Grátis • Usa a voz do seu aparelho ou navegador. Ao continuar, o trecho atual pode ser repetido.';
+    : 'Grátis • Usa a voz do seu aparelho ou navegador para capítulos ainda em geração.';
   const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-bold bg-reformedGold-600 text-white hover:bg-reformedGold-700 disabled:opacity-50 disabled:cursor-not-allowed';
+
   return (
     <section aria-label="Leitura em voz" className="space-y-1.5">
       <div className="flex flex-wrap items-center gap-2">
         {status === 'idle' || status === 'loading' ? (
-          <button className={buttonClass} disabled={availability !== 'ready' || status === 'loading'} onClick={start}>
+          <button className={buttonClass} disabled={status === 'loading'} onClick={start}>
             <Volume2 className="w-4 h-4" />{status === 'loading' ? 'Preparando leitura…' : daily ? 'Ouvir leitura do dia' : 'Ouvir capítulo'}
           </button>
         ) : (
