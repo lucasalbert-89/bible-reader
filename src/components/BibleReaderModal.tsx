@@ -395,10 +395,10 @@ export const BibleReaderModal: React.FC<BibleReaderModalProps> = ({
             <div className="p-6 text-center text-rose-500 font-sans space-y-2">
               <p>{loadError}</p>
               <button
-                onClick={() => handleSelectVersion('nvi')}
+                onClick={() => handleSelectVersion('naa')}
                 className="text-xs underline text-reformedGold-600 font-bold"
               >
-                Tentar carregar em NVI
+                Tentar carregar em NAA
               </button>
             </div>
           )}

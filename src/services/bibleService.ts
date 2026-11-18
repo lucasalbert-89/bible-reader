@@ -9,18 +9,18 @@ export interface RawBibleBook {
 
 export const BIBLE_VERSIONS: BibleVersionInfo[] = [
   {
-    id: 'nvi',
-    name: 'NVI',
-    fullName: 'Nova Versão Internacional',
-    badge: 'Contemporânea e Fluida',
-    description: 'Tradução equilibrada e clara, excelente para leitura diária e compreensão.'
-  },
-  {
     id: 'naa',
     name: 'NAA',
     fullName: 'Nova Almeida Atualizada',
     badge: 'Formal e Precisa',
     description: 'Revisão erudita da Sociedade Bíblica do Brasil na norma culta contemporânea.'
+  },
+  {
+    id: 'nvi',
+    name: 'NVI',
+    fullName: 'Nova Versão Internacional',
+    badge: 'Contemporânea e Fluida',
+    description: 'Tradução equilibrada e clara, excelente para leitura diária e compreensão.'
   },
   {
     id: 'acf',
@@ -180,14 +180,16 @@ export function getPrevChapter(bookIdx: number, chapter: number): { bookName: st
 /**
  * Local preference management.
  */
+const PREFERRED_VERSION_KEY = 'biblia_preferred_version_v2';
+
 export function getSavedBibleVersion(): BibleVersionId {
-  const saved = localStorage.getItem('biblia_preferred_version') as BibleVersionId | null;
+  const saved = localStorage.getItem(PREFERRED_VERSION_KEY) as BibleVersionId | null;
   if (saved && (saved === 'nvi' || saved === 'naa' || saved === 'acf')) {
     return saved;
   }
-  return 'nvi';
+  return 'naa';
 }
 
 export function saveBibleVersion(version: BibleVersionId): void {
-  localStorage.setItem('biblia_preferred_version', version);
+  localStorage.setItem(PREFERRED_VERSION_KEY, version);
 }
